@@ -1,10 +1,12 @@
 # Simple remote port monitor tool
 
-A simple configurable tool to monitor remote ports and notify if not accessible.
+A simple configurable tool to monitor remote ports and notify if connectivity fails. **Discord channel** as well as **Email** notifications are currently available.
 
 ## Requirement
 
 - NodeJS v8 or above.
+- Discord server (If Discord notifications are required)
+- SMTP email server (For email notifications are required)
 
 ## Installation
 
@@ -17,14 +19,14 @@ A simple configurable tool to monitor remote ports and notify if not accessible.
 
 ### Configurations
 
-| Key                | Description                                                  |
-| ------------------ | ------------------------------------------------------------ |
-| notify_interval    | How often you want to get notified of a service disruption   |
-| monitor_interval   | How often tool should check connectivity                     |
-| connection_timeout | How long to wait before timing out the service connection    |
-| discord_webhooks   | Array of Discord webhooks to which notification will be sent |
-| notify_emails      | Array of emails to which notification will be sent           |
-| smtp_transport     | SMTP server details using which tool will send emails        |
+| Key                | Description                                                             |
+| ------------------ | ----------------------------------------------------------------------- |
+| notify_interval    | How often you want to get notified of a service disruption (In seconds) |
+| monitor_interval   | How often tool should check connectivity (In seconds)                   |
+| connection_timeout | How long to wait before timing out the service connection (In seconds)  |
+| discord_webhooks   | Array of Discord webhooks to which notification will be sent            |
+| notify_emails      | Array of emails to which notification will be sent                      |
+| smtp_transport     | SMTP server details using which tool will send emails                   |
 
 ### Example Configuration
 
