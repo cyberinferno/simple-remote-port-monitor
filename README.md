@@ -6,7 +6,7 @@ A simple configurable tool to monitor remote ports and notify if connectivity fa
 
 - NodeJS v8 or above.
 - Discord server (If Discord notifications are required)
-- SMTP email server (For email notifications are required)
+- SMTP email server (If email notifications are required)
 
 ## Installation
 
@@ -15,7 +15,7 @@ A simple configurable tool to monitor remote ports and notify if connectivity fa
 - Run `npm install` command in the project directory to install all dependencies.
 - Create the file `config.json` and copy all contents from `config_example.json`. Update configuration as per your requirements.
 - Run `node app.js` command in the project directory to start the monitoring for testing purpose.
-- Install PM2 (Refer https://pm2.keymetrics.io/) and run the command `pm2 app.js` in the project directory to run it as a background service in your server.
+- Install PM2 (Refer https://pm2.keymetrics.io/) and run the command `pm2 start app.js` in the project directory to run it as a background service in your server.
 
 ### Configurations
 
