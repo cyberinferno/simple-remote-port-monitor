@@ -1,2 +1,62 @@
-# simple-remote-port-monitor
-A simple configurable tool to monitor remote ports and notify if not accessible
+# Simple remote port monitor tool
+
+A simple configurable tool to monitor remote ports and notify if not accessible.
+
+## Requirement
+
+- NodeJS v8 or above.
+
+## Installation
+
+- Install latest LTS version NodeJS (Refer https://nodejs.org).
+- Clone this repository.
+- Run `npm install` command in the project directory to install all dependencies.
+- Create the file `config.json` and copy all contents from `config_example.json`. Update configuration as per your requirements.
+- Run `node app.js` command in the project directory to start the monitoring for testing purpose.
+- Install PM2 (Refer https://pm2.keymetrics.io/) and run the command `pm2 app.js` in the project directory to run it as a background service in your server.
+
+### Configurations
+
+| Key                | Description                                                  |
+| ------------------ | ------------------------------------------------------------ |
+| notify_interval    | How often you want to get notified of a service disruption   |
+| monitor_interval   | How often tool should check connectivity                     |
+| connection_timeout | How long to wait before timing out the service connection    |
+| discord_webhooks   | Array of Discord webhooks to which notification will be sent |
+| notify_emails      | Array of emails to which notification will be sent           |
+| smtp_transport     | SMTP server details using which tool will send emails        |
+
+### Example Configuration
+
+This is a full config example with discord webhook and SMTP configurations included for reference purpose
+
+```
+{
+  "notify_interval": 900,
+  "monitor_interval": 60,
+  "connection_timeout": 30,
+  "services": [{
+    "name": "My local web server",
+    "host": "127.0.0.1",
+    "port": 80
+  }],
+  "discord_webhooks": [
+    "https://discordapp.com/api/webhooks/{id}/{token}"
+  ],
+  "notify_emails": [
+    "email@example.com"
+  ],
+  "smtp_transport": {
+    "host": "smtp.example.com",
+    "port": 587,
+    "secure": false,
+    "tls": {
+      "rejectUnauthorized": false
+    },
+    "auth": {
+      "user": "email@example.com",
+      "pass": "password"
+    }
+  }
+}
+```

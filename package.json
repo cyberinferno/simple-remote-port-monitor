@@ -1,0 +1,27 @@
+{
+  "name": "simple-remote-port-monitor",
+  "version": "1.0.0",
+  "description": "A simple configurable tool to monitor remote ports and notify if not accessible",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyberinferno/simple-remote-port-monitor.git"
+  },
+  "keywords": [
+    "port-monitoring"
+  ],
+  "author": "Karthik P",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cyberinferno/simple-remote-port-monitor/issues"
+  },
+  "homepage": "https://github.com/cyberinferno/simple-remote-port-monitor#readme",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "bluebird": "^3.7.2",
+    "nodemailer": "^6.4.2"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "notify_interval": 900,
+  "monitor_interval": 60,
+  "connection_timeout": 30,
+  "services": {},
+  "discord_webhooks": [],
+  "notify_emails": [],
+  "smtp_transport": {}
+}
