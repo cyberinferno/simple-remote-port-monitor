@@ -43,20 +43,18 @@ function startMonitoring() {
 
 function checkAndNotifyAllServices() {
   config['services'].forEach(service => {
-    let result = {};
-    if(service.host && service.port && service.name) {
+    if (service.host && service.port && service.name) {
       console.log(`Checking ${service.name} connectivity...`);
-      try {
-        result = checkConnection(service);
-        console.log(`${result.name} connectivity check succeeded!`);
-        if(notificationLog[result.name]) {
-          delete notificationLog [result.name];
-        }
-
-      } catch (err) {
-        console.log(`${result.name} connectivity check failed!`);
-        notifyFailure(result);
-      }
+      checkConnection(service.name, service.host, service.port)
+        .then(result => {
+          console.log(`${result.name} connectivity check succeeded!`);
+          if (notificationLog[result.name]) {
+            delete notificationLog[result.name];
+          }
+        }).catch(result => {
+          console.log(`${result.name} connectivity check failed!`);
+          notifyFailure(result);
+        });
     }
   });
 }
@@ -70,22 +68,23 @@ function notifyFailure(data) {
   }
   notificationLog[data.name] = currentTime[0];
 
-  const notificationMsg = `@here ${data.name} service with host ${data.host} \
-  and port ${data.port} has gone down!`;
+  const notificationMsg = `@here ${data.name} service with host ${data.host}\
+ and port ${data.port} has gone down!`;
   if (config['discord_webhooks'] && config['discord_webhooks'].length) {
     config['discord_webhooks'].forEach(webhook => discordNotification(webhook, notificationMsg));
   }
 
   if (config['notify_emails'] && config['notify_emails'].length) {
-    config['notify_emails'].forEach(email => emailNotification(email, notificationMsg));
+    config['notify_emails'].forEach(email => emailNotification(email, notificationMsg, notificationMsg));
   }
 }
 
 async function discordNotification(webhookUrl, content) {
   try {
-    await axios.post(webhookUrl, { content: content });
-  }
-  catch(err) {
+    await axios.post(webhookUrl, {
+      content: content
+    });
+  } catch (err) {
     console.log(err);
   }
 }
@@ -106,7 +105,7 @@ function checkConnection(serviceName, host, port) {
   return new Promise((resolve, reject) => {
     const connectionTimeout = config['connection_timeout'];
     const timeout = connectionTimeout ? connectionTimeout * MILISECONDS_TO_SECONDS_FACTOR :
-                    DEFAULT_TIMEOUT_IN_SECONDS;
+      DEFAULT_TIMEOUT_IN_SECONDS;
     const timer = setTimeout(() => {
       reject('timeout');
       socket.end();
