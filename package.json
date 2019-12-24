@@ -21,7 +21,6 @@
   "homepage": "https://github.com/cyberinferno/simple-remote-port-monitor#readme",
   "dependencies": {
     "axios": "^0.19.0",
-    "bluebird": "^3.7.2",
     "nodemailer": "^6.4.2"
   }
 }
