@@ -1,12 +1,14 @@
-"use strict";
+'use strict';
 
-const net = require("net");
-const nodemailer = require("nodemailer");
-const Promise = require("bluebird");
 const axios = require('axios');
-const fs = require('fs');
+const config = require('./config.json');
+const net = require('net');
+const nodemailer = require('nodemailer');
 
-var config = {};
+
+const MILISECONDS_TO_SECONDS_FACTOR = 1000;
+const DEFAULT_TIMEOUT_IN_SECONDS = 10000;
+
 var notificationLog = {};
 try {
   console.log(`
@@ -21,101 +23,71 @@ try {
 
                           ~~~~~~~~~~ By cyberinferno  ~~~~~~~~~~
   `);
-  config = require("./config.json");
+
   startMonitoring();
 } catch (e) {
   console.log(e);
 }
 
-function checkConnection(serviceName, host, port, timeout) {
-  return new Promise(function (resolve, reject) {
-    timeout = config['connection_timeout'] ? config['connection_timeout'] * 1000 : 10000;
-    var timer = setTimeout(function () {
-      reject("timeout");
-      socket.end();
-    }, timeout);
-    var socket = net.createConnection(port, host, function () {
-      clearTimeout(timer);
-      resolve({
-        name: serviceName,
-        host: host,
-        port: port
-      });
-      socket.end();
-    });
-    socket.on("error", function (err) {
-      clearTimeout(timer);
-      reject({
-        name: serviceName,
-        host: host,
-        port: port,
-        error: err
-      });
-    });
-  });
-}
+// TODO: Make sure config is valid
 
 function startMonitoring() {
   console.log('Starting monitoring service...');
-  if (config['services'] === undefined || config['services'].length === undefined || config['services'].length == 0) {
+  if (!config['services'] || !config['services'].length) {
     console.log('No services have been configured to be monitored!');
   } else {
     checkAndNotifyAllServices();
-    setInterval(checkAndNotifyAllServices, config['monitor_interval'] * 1000);
+    setInterval(checkAndNotifyAllServices, config['monitor_interval'] * MILISECONDS_TO_SECONDS_FACTOR);
   }
 }
 
 function checkAndNotifyAllServices() {
-  for (var i = 0; i < config['services'].length; i++) {
-    if (config['services'][i].host && config['services'][i].port && config['services'][i].name) {
-      console.log('Checking ' + config['services'][i].name + ' connectivity...');
-      checkConnection(config['services'][i].name, config['services'][i].host, config['services'][i].port)
-        .then(function (data) {
-          console.log(data.name + ' connectivity check succeeded!');
-          // Reset notification time so that it notifies intermittent service downtime
-          if (notificationLog[data.name]) {
-            delete notificationLog[data.name];
-          }
-        })
-        .catch(function (data) {
-          console.log(data.name + ' connectivity check failed!');
-          notifyFailure(data);
-        });
+  config['services'].forEach(service => {
+    let result = {};
+    if(service.host && service.port && service.name) {
+      console.log(`Checking ${service.name} connectivity...`);
+      try {
+        result = checkConnection(service);
+        console.log(`${result.name} connectivity check succeeded!`);
+        if(notificationLog[result.name]) {
+          delete notificationLog [result.name];
+        }
+
+      } catch (err) {
+        console.log(`${result.name} connectivity check failed!`);
+        notifyFailure(result);
+      }
     }
-  }
+  });
 }
 
 function notifyFailure(data) {
   let currentTime = process.hrtime();
   // Do not notify if interval has not reached
-  if (notificationLog[data.name] && currentTime[0] - notificationLog[data.name] < config['notify_interval']) {
+  const notification = notificationLog[data.name];
+  if (notification && currentTime[0] - notification < config['notify_interval']) {
     return;
   }
   notificationLog[data.name] = currentTime[0];
-  if (config['discord_webhooks'] !== undefined && config['discord_webhooks'].length !== undefined && config['discord_webhooks'].length !== 0) {
-    for (var i = 0; i < config['discord_webhooks'].length; i++) {
-      discordNotification(config['discord_webhooks'][i],
-        '@here ' + data.name + ' service with host ' + data.host + ' and port ' + data.port + ' has gone down!'
-      );
-    }
+
+  const notificationMsg = `@here ${data.name} service with host ${data.host} \
+  and port ${data.port} has gone down!`;
+  if (config['discord_webhooks'] && config['discord_webhooks'].length) {
+    config['discord_webhooks'].forEach(webhook => discordNotification(webhook, notificationMsg));
   }
-  if (config['notify_emails'] !== undefined && config['notify_emails'].length !== undefined && config['notify_emails'].length !== 0) {
-    for (var i = 0; i < config['notify_emails'].length; i++) {
-      emailNotification(
-        config['notify_emails'][i],
-        data.name + ' service has gone down',
-        data.name + ' service with host ' + data.host + ' and port ' + data.port + ' has gone down!'
-      );
-    }
+
+  if (config['notify_emails'] && config['notify_emails'].length) {
+    config['notify_emails'].forEach(email => emailNotification(email, notificationMsg));
   }
 }
 
-function discordNotification(webhookUrl, content) {
-  axios.post(webhookUrl, {
-    content: content
-  }).catch(function (error) {
-    console.log(error);
-  });
+async function discordNotification(webhookUrl, content) {
+  try {
+    await axios.post(webhookUrl, { content: content });
+  }
+  catch(err) {
+    console.log(err);
+  }
 }
 
 function emailNotification(toAddress, subject, body) {
@@ -128,4 +100,34 @@ function emailNotification(toAddress, subject, body) {
       text: body
     });
   }
+}
+
+function checkConnection(serviceName, host, port) {
+  return new Promise((resolve, reject) => {
+    const connectionTimeout = config['connection_timeout'];
+    const timeout = connectionTimeout ? connectionTimeout * MILISECONDS_TO_SECONDS_FACTOR :
+                    DEFAULT_TIMEOUT_IN_SECONDS;
+    const timer = setTimeout(() => {
+      reject('timeout');
+      socket.end();
+    }, timeout);
+    const socket = net.createConnection(port, host, () => {
+      clearTimeout(timer);
+      resolve({
+        name: serviceName,
+        host: host,
+        port: port
+      });
+      socket.end();
+    });
+    socket.on('error', (err) => {
+      clearTimeout(timer);
+      reject({
+        name: serviceName,
+        host: host,
+        port: port,
+        error: err
+      });
+    });
+  });
 }
