@@ -1,7 +1,7 @@
 {
   "name": "simple-remote-port-monitor",
-  "version": "1.0.0",
-  "description": "A simple configurable tool to monitor remote ports and notify if not accessible",
+  "version": "2.0.0",
+  "description": "A simple configurable tool to monitor remote ports, notify if not accessible and execute command",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -20,7 +20,12 @@
   },
   "homepage": "https://github.com/cyberinferno/simple-remote-port-monitor#readme",
   "dependencies": {
-    "axios": "^0.19.0",
-    "nodemailer": "^6.4.2"
+    "axios": "^0.19.2",
+    "config": "^3.3.1",
+    "nodemailer": "^6.4.10"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-strongloop": "^2.1.0"
   }
 }

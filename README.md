@@ -1,6 +1,8 @@
 # Simple remote port monitor tool
 
-A simple configurable tool to monitor remote ports and notify if connectivity fails. **Discord channel** as well as **Email** notifications are currently available.
+A simple configurable tool to monitor remote ports and notify if connectivity fails. If the application is running in same server as the service, a command can be configured to be executed on connectivity check failure.
+
+**Discord channel** as well as **Email** notifications are currently available.
 
 ## Requirement
 
@@ -13,7 +15,7 @@ A simple configurable tool to monitor remote ports and notify if connectivity fa
 - Install latest LTS version NodeJS (Refer https://nodejs.org).
 - Clone this repository.
 - Run `npm install` command in the project directory to install all dependencies.
-- Create the file `config.json` and copy all contents from `config_example.json`. Update configuration as per your requirements.
+- Create the file `development.json` or `production.json` based upon environment to override default config.
 - Run `node app.js` command in the project directory to start the monitoring for testing purpose.
 - Install PM2 (Refer https://pm2.keymetrics.io/) and run the command `pm2 start app.js` in the project directory to run it as a background service in your server.
 
@@ -27,10 +29,11 @@ A simple configurable tool to monitor remote ports and notify if connectivity fa
 | discord_webhooks   | Array of Discord webhooks to which notification will be sent            |
 | notify_emails      | Array of emails to which notification will be sent                      |
 | smtp_transport     | SMTP server details using which tool will send emails                   |
+| message_strings    | Holds text that is sent when a service is down                          |
 
 ### Example Configuration
 
-This is a full config example with discord webhook and SMTP configurations included for reference purpose
+This is a full config example with restart command, discord webhook and SMTP configurations included for reference purpose
 
 ```
 {
@@ -40,7 +43,8 @@ This is a full config example with discord webhook and SMTP configurations inclu
   "services": [{
     "name": "My local web server",
     "host": "127.0.0.1",
-    "port": 80
+    "port": 80,
+    "command": "sudo service apache2 restart"
   }],
   "discord_webhooks": [
     "https://discordapp.com/api/webhooks/{id}/{token}"

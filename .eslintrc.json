@@ -1,0 +1,13 @@
+{
+  "extends": "strongloop",
+  "rules": {
+    "max-len": [2, 120, 8]
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  }
+}
