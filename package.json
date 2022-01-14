@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/cyberinferno/simple-remote-port-monitor#readme",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "config": "^3.3.1",
     "nodemailer": "^6.4.16"
   },
